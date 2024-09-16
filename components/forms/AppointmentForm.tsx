@@ -5,23 +5,25 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { z } from 'zod';
+import Image from 'next/image';
 import CustomFormField from '@/components/CustomFormField';
 import { createUser } from '@/lib/actions/patient.actions';
 import SubmitButton from '@/components/SubmitButton';
 import { UserFormValidation } from '@/lib/validation';
 import { Form } from '@/components/ui/form';
+import { SelectItem } from '../ui/select';
+import { FormFieldType } from './PatientForm';
+import { Doctors } from '@/constants';
 
-export enum FormFieldType {
-  INPUT = 'input',
-  TEXTAREA = 'textarea',
-  PHONE_INPUT = 'phoneInput',
-  CHECKBOX = 'checkbox',
-  DATE_PICKER = 'datePicker',
-  SELECT = 'select',
-  SKELETON = 'skeleton',
-}
-
-const PatientForm = () => {
+const AppointmentForm = ({
+  userId,
+  patientId,
+  type,
+}: {
+  userId: string;
+  patientId: string;
+  type: 'create' | 'cancel';
+}) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -60,37 +62,38 @@ const PatientForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex-1">
         <section className="mb-12 space-y-4">
-          <h1 className="header">Hi there 👋 </h1>
-          <p className="text-dark-700">Schedule your first appointment.</p>
-
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="name"
-            label="Full name"
-            placeholder="John Doe"
-            iconSrc="/assets/icons/user.svg"
-            iconAlt="user"
-          />
-
-          <CustomFormField
-            fieldType={FormFieldType.INPUT}
-            control={form.control}
-            name="email"
-            label="Email"
-            placeholder="johndoe@email.com"
-            iconSrc="/assets/icons/email.svg"
-            iconAlt="email"
-          />
-
-          <CustomFormField
-            fieldType={FormFieldType.PHONE_INPUT}
-            control={form.control}
-            name="phone"
-            label="Phone number"
-            placeholder="(555) 123-4567"
-          />
+          <h1 className="header">New Appointment</h1>
+          <p className="text-dark-700">
+            Request a new appointment in 10 seconds
+          </p>
         </section>
+
+        {type !== 'cancel' && (
+          <>
+            <CustomFormField
+              fieldType={FormFieldType.SELECT}
+              control={form.control}
+              name="primaryPhysician"
+              label="Primary Physician"
+              placeholder="Select a physician"
+            >
+              {Doctors.map((doctor) => (
+                <SelectItem key={doctor.name} value={doctor.name}>
+                  <div className="flex cursor-pointer items-center gap-2">
+                    <Image
+                      src={doctor.image}
+                      width={32}
+                      height={32}
+                      alt={doctor.name}
+                      className="rounded-full border border-dark-500"
+                    />
+                    <p>{doctor.name}</p>
+                  </div>
+                </SelectItem>
+              ))}
+            </CustomFormField>
+          </>
+        )}
 
         <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
@@ -98,4 +101,4 @@ const PatientForm = () => {
   );
 };
 
-export default PatientForm;
+export default AppointmentForm;
